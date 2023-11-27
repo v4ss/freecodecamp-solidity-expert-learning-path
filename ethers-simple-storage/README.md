@@ -2,6 +2,8 @@
 Vidéo: 7.57.53
 ---
 
+# Web3 Project VSCode
+
 ## Install the IDE
 
 ### Prettier and Auto-formatter
