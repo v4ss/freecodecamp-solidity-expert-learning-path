@@ -1,10 +1,10 @@
 ---
-Vidéo: 7.07.17
+Vidéo: 7.57.53
 ---
 
-# Install the IDE
+## Install the IDE
 
-## Prettier and Auto-formatter
+### Prettier and Auto-formatter
 
 -   Download the "Solidity + Hardhat" and "Prettier - Code formatter" extension in VSCode to have a prettier view in your code.
 -   Press `"Ctrl + Shift + P"` and write `"settings"`
@@ -28,7 +28,7 @@ Install `prettier` and `prettier-plugin-solidity` packages
 yarn add prettier prettier-plugin-solidity
 ```
 
-## NodeJS
+### NodeJS
 
 You have to install NodeJS.
 After this, go to your project folder and execute the following commands :
@@ -46,7 +46,7 @@ yarn add solc #Install the compiler solc
 yarn add solc@0.8.7-fixed #To install with the version of the compiler you want
 ```
 
-## Dependencies
+### Dependencies
 
 For solidity development, we are going to use `ethers` package. For install it, write this command :
 
@@ -60,17 +60,15 @@ And fo read file in Javascript, we are going to use `fs-extra` :
 yarn add fs-extra
 ```
 
-## Ganache
+### Ganache
 
 Ganache is a fake local Blockchain that you can install on your computer. It also generate fake wallet account with a balance of fake ETH. It's the same thing when you use Remix but with ganache, it's local.
 
 You will have a local RPC URL, Network ID, etc .. like a real Blockchain network.
 
----
+## Create a project
 
-# Create a project
-
-## Compile the Smart Contract
+### Compile the Smart Contract
 
 To compile our smart contract, we have to use the `solcjs` module, that we install before.
 The command to do that is :
@@ -96,11 +94,11 @@ To simplify the compile command, go to the `package.json` file and add the `scri
 
 Now you have just to write `yarn compile` and this big command will be execute.
 
-## deploy.js file
+### deploy.js file
 
 `deploy.js` is the file who permit you to deploy your smart contract in a Blockchain.
 
-### ContractFactory
+#### ContractFactory
 
 Create it and paste this code :
 
@@ -152,7 +150,7 @@ Now you can run the deploy command, to deploy your contract in the Blockchain.
 node deploy.js
 ```
 
-### Transaction Data
+#### Transaction Data
 
 We can also deploy a contract with only transaction data. So in this case, we configure the transaction ourselves.
 
@@ -198,9 +196,7 @@ main()
 
 With this way, we can create our transactions step by step. But is'nt the regular way. The ContractFactory method (just before) is the most common.
 
----
-
-# Interact with a contract
+## Interact with a contract
 
 In our Javascript file, we will be able to interact with the functions of the smart contract. The way to do this is simple :
 
@@ -221,9 +217,7 @@ const updatedFavoriteNumber = await contract.retrieve(); // Call the retrieve fu
 console.log(`Updated favorite number is: ${updatedFavoriteNumber}`);
 ```
 
----
-
-# Setting up .env
+## Setting up .env
 
 First, we have to install the package
 
@@ -264,11 +258,9 @@ async function main() {
 }
 ```
 
----
+## Better Private Key Management
 
-# Better Private Key Management
-
-## Without `.env` file
+### Without `.env` file
 
 A way to secure our private key is to delete the `.env` file and when we call the command to execute the script, we write the variable in the command :
 
@@ -276,7 +268,7 @@ A way to secure our private key is to delete the `.env` file and when we call th
 PRIVATE_KEY=0x34971509584aae01eea72f62a7010c160f81d9a179616e8ac5c9f91fb7816e39 RPC_URL=http://127.0.0.1:7545 node deploy.js #In one command!
 ```
 
-## Encryption Key
+### Encryption Key
 
 Another way (the best) is to encrypt our private key. In this case, even if, we push accidently our `.env` file, nobody can read and exploit it.
 
