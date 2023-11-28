@@ -340,3 +340,41 @@ PRIVATE_KEY_PASSWORD=mypassword node deploy.js
 
 history -c #To clear the command history (with the password in clear!)
 ```
+
+## Javascript to TypeScript
+
+`.js` files become `.ts`
+The `require` at the begining of the script become `import`
+
+```ts
+// const ethers = require("ethers");
+// const fs = require("fs-extra");
+// require("dotenv").config();
+
+import { ethers } from "ethers";
+import * as fs from "fs-extra";
+import "dotenv/config";
+```
+
+We have to add typescript packages : `yarn add typescript ts-node`
+Add the typescript version of `fs-extra` :
+
+```bash
+yarn add @types/fs-extra
+```
+
+Force the string type of the environment variables with a `!` at the end of the variable : (Do the same thing in `encryptKey.ts`)
+
+```ts deploy.ts
+async function main() {
+    // compile them in our code
+    // http://127.0.0.1:7545
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+```
+
+Now to deploy, run :
+
+```bash
+npx ts-node deploy.ts
+```
