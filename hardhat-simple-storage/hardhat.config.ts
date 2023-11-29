@@ -1,9 +1,11 @@
-require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
-//require("@nomiclabs/hardhat-etherscan");
-require("./tasks/block-number.js");
-require("hardhat-gas-reporter");
-require("solidity-coverage");
+import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
+//import "@nomiclabs/hardhat-etherscan";
+import "./tasks/block-number.ts";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+import "@nomicfoundation/hardhat-ethers";
+import "@typechain/hardhat";
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
