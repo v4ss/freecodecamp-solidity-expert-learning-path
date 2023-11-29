@@ -3443,7 +3443,7 @@ solidity-comments-extractor@^0.0.7:
   resolved "https://registry.yarnpkg.com/solidity-comments-extractor/-/solidity-comments-extractor-0.0.7.tgz#99d8f1361438f84019795d928b931f4e5c39ca19"
   integrity sha512-wciNMLg/Irp8OKGrh3S2tfvZiZ0NEyILfcRCXCD4mp7SgK/i9gzLfhY2hY7VMCQJ3kH9UB9BzNdibIVMchzyYw==
 
-solidity-coverage@^0.8.0:
+solidity-coverage@^0.8.5:
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.8.5.tgz#64071c3a0c06a0cecf9a7776c35f49edc961e875"
   integrity sha512-6C6N6OV2O8FQA0FWA95FdzVH+L16HU94iFgg5wAFZ29UpLFkgNI/DRR2HotG1bC0F4gAc/OMs2BJI44Q/DYlKQ==
