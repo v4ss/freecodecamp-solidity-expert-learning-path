@@ -5,8 +5,6 @@ describe("FundMe", async function () {
     let fundMe;
     let deployer;
     let mockV3Aggregator;
-    let fundMeAddress;
-    let mockV3AggregatorAddress;
     beforeEach(async function () {
         // deploy our fundMe contract
         // using Hardhat deploy
