@@ -7,33 +7,59 @@ pragma solidity ^0.8.8;
 
 import "./PriceConverter.sol";
 
-error NotOwner();
+error FundMe__NotOwner();
 
+/**
+ * @title A contract for crowd funding
+ * @author Florian Allione - v4ss
+ * @notice This contract is to demo a sample funding contract
+ * @dev This implements price feeds as our library
+ */
 contract FundMe {
+    // Types declaration
     using PriceConverter for uint256;
 
+    // State variables
     uint256 public constant MINIMUM_USD = 50 * 1e18;
-
     address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
-
     address public immutable i_owner;
-
     AggregatorV3Interface public priceFeed;
 
+    // Modifiers
+    modifier onlyOwner() {
+        // require(msg.sender == i_owner, "Sender is not owner!");
+        if (msg.sender != i_owner) {
+            revert FundMe__NotOwner();
+        }
+        _;
+    }
+
+    // Functions
+    // constructor
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
-    modifier onlyOwner() {
-        // require(msg.sender == i_owner, "Sender is not owner!");
-        if (msg.sender != i_owner) {
-            revert NotOwner();
-        }
-        _;
+    // receive
+    receive() external payable {
+        fund();
     }
 
+    // fallback
+    fallback() external payable {
+        fund();
+    }
+
+    // external
+
+    // public
+
+    /**
+     * @notice This function funds this contract
+     * @dev This implements price feeds as our library
+     */
     function fund() public payable {
         // Want to be abe to set a minimum fund amount in USD
         // How do we send ETH to this contract ?
@@ -70,11 +96,9 @@ contract FundMe {
         require(callSuccess, "Call failed");
     }
 
-    receive() external payable {
-        fund();
-    }
+    // internal
 
-    fallback() external payable {
-        fund();
-    }
+    // private
+
+    // view / pure
 }
