@@ -1,4 +1,7 @@
 {
+  "name": "hardhat-fund-me",
+  "author": "Florian Allione - v4ss",
+  "version": "1.0.0",
   "devDependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
@@ -19,5 +22,13 @@
     "prettier-plugin-solidity": "^1.2.0",
     "solidity-coverage": "^0.8.0",
     "typechain": "^8.3.0"
+  },
+  "scripts": {
+    "test": "yarn hardhat test",
+    "test:staging": "yarn hardhat test --network sepolia",
+    "lint": "yarn solhint 'contracts/*.sol'",
+    "lint:fix": "yarn solhint 'contracts/*.sol' --fix",
+    "format": "yarn prettier --write .",
+    "coverage": "yarn hardhat coverage"
   }
 }
