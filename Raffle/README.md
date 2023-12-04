@@ -73,7 +73,7 @@ Install the packages : `yarn add --dev @chainlink/contracts`
 
 `Raffle` inherits the `VRF` contract and add the VRF constructor.
 
-```sol
+```js
 // Raffle
 
 // We want to :
