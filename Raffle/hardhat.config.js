@@ -1,4 +1,4 @@
-//require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
@@ -25,6 +25,13 @@ module.exports = {
             url: SEPOLIA_RPC_URL,
             accounts: [PRIVATE_KEY],
         },
+    },
+    gasReporter: {
+        enabled: false,
+        currency: "USD",
+        outpurFile: "gas-reporter.txt",
+        noColors: true,
+        // coinmarketcap: COINMARKETCAP_API_KEY,
     },
     solidity: "0.8.19",
     namedAccounts: {

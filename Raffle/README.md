@@ -17,6 +17,12 @@ yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomic
 yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomiclabs/hardhat-etherscan @nomiclabs/hardhat-waffle chai ethereum-waffle hardhat hardhat-contract-sizer hardhat-deploy hardhat-gas-reporter prettier prettier-plugin-solidity solhint solidity-coverage dotenv @typechain/ethers-v5 @typechain/hardhat @types/chai @types/node ts-node typechain typescript @nomicfoundation/hardhat-toolbox
 ```
 
+For the package `@nomicfoundation/hardhat-toolbox`, you have to add this :
+
+```bash
+yarn add --dev "@nomicfoundation/hardhat-chai-matchers@^2.0.0" "@nomicfoundation/hardhat-network-helpers@^1.0.0" "@nomicfoundation/hardhat-verify@^2.0.0" "@typechain/ethers-v6@^0.5.0" "@typechain/hardhat@^9.0.0" "@types/chai@^4.2.0" "@types/mocha@>=9.1.0" "ts-node@>=8.0.0" "typescript@>=4.5.0"
+```
+
 ```js
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
@@ -339,6 +345,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     function getRequestConfirmations() public pure returns (uint256) {
         return REQUEST_CONFIRMATIONS;
     }
+
+    function getInterval() public view returns (uint256) {
+        return i_interval;
+    }
 }
 ```
 
@@ -445,5 +455,197 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 Create a new folder `contracts/test` and a new file called `VRFCoordinatorV2Mock.sol` and import the mock contract for VRFCoordinatorV2 :
 
 ```js
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 
 ```
+
+Compile to see if there are no problems. And it's good.
+Now return to the deploy mocks file and deploy it !
+
+```js
+const { developmentChains } = require("../helper-hardhat-config");
+
+const BASE_FEE = ethers.parseEther("0.25"); // 0.25 is the premium. It costs 0.25 LINK. Find here : https://docs.chain.link/vrf/v2/direct-funding/supported-networks#sepolia-testnet
+const GAS_PRICE_LINK = 1e9; // Calculated value based on the gas price of the chain
+
+module.exports = async function ({ getNamedAccounts, deployments }) {
+    const { deploy, log } = deployments;
+    const { deployer } = await getNamedAccounts();
+    const args = [BASE_FEE, GAS_PRICE_LINK];
+
+    if (developmentChains.includes(network.name)) {
+        log("Local network detected! Deploying mocks...");
+        // Deploy a mock vrfCoordinator...
+        await deploy("VRFCoordinatorV2Mock", {
+            from: deployer,
+            args: args,
+            log: true,
+        });
+        log("Mocks Deployed!");
+        log("---------------------------------");
+    }
+};
+
+module.exports.tags = ["all", "mocks"];
+```
+
+### Return to deploy Raffle
+
+Complete the deploy script :
+
+```js
+const { network, ethers } = require("hardhat");
+const { developmentChains, networkConfig } = require("../helper-hardhat-config");
+
+// For the Subscription
+const VRF_SUB_FUND_AMOUNT = ethers.parseEther("30");
+
+module.exports = async function ({ getNamedAccounts, deployments }) {
+    const { deploy, log } = deployments;
+    const { deployer } = await getNamedAccounts();
+    const chainId = network.config.chainId;
+    let vrfCoordinatorV2Address, subscriptionId;
+
+    if (developmentChains.includes(network.name)) {
+        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock");
+        vrfCoordinatorV2Address = vrfCoordinatorV2Mock.target;
+
+        // To get the subscription Id in the mock
+        const transactionResponse = await vrfCoordinatorV2Mock.createSubscription();
+        const transactionReceipt = await transactionResponse.wait(1);
+        subscriptionId = transactionReceipt.logs[0].args.subId;
+        // Fund the subscription
+        // Usually, you'd need the link token on a real network
+        await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT);
+    } else {
+        vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"];
+        subscriptionId = networkConfig[chainId]["subscriptionId"];
+    }
+
+    const entranceFee = networkConfig[chainId]["entranceFee"];
+    const gasLane = networkConfig[chainId]["gasLane"];
+    const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"];
+    const interval = networkConfig[chainId]["interval"];
+
+    const args = [
+        vrfCoordinatorV2Address,
+        entranceFee,
+        gasLane,
+        subscriptionId,
+        callbackGasLimit,
+        interval,
+    ];
+    const raffle = await deploy("Raffle", {
+        from: deployer,
+        args: args,
+        log: true,
+        waitConfirmations: network.config.blockConfirmations || 1,
+    });
+
+    // Adding the consumer if we are in local
+    if (developmentChains.includes(network.name)) {
+        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock");
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address);
+    }
+};
+```
+
+And update the `helper-hardhat-config.js` :
+
+```js
+const { ethers } = require("hardhat");
+
+const networkConfig = {
+    11155111: {
+        name: "sepolia",
+        vrfCoordinatorV2: "0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625", // Find here : https://docs.chain.link/vrf/v2/direct-funding/supported-networks#sepolia-testnet
+        entranceFee: ethers.parseEther("0.01"),
+        gasLane: "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
+        subscriptionId: "0",
+        callbackGasLimit: "500000", //500,000
+        interval: "30", // 30 seconds
+    },
+    31337: {
+        name: "hardhat",
+        //vrfCoordinatorV2: Don't because it's the mocks contract
+        entranceFee: ethers.parseEther("0.01"),
+        gasLane: "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c", // Usse the same that Sepolia, hardhat he doesn't care because we use the mocks
+        //subscriptionId: It's create we the Mock function in 01-deploy-raffle.js
+        callbackGasLimit: "500000", //500,000
+        interval: "30", // 30 seconds
+    },
+};
+
+const developmentChains = ["hardhat", "localhost"];
+
+module.exports = {
+    networkConfig,
+    developmentChains,
+};
+```
+
+### Verify
+
+Create a new folder `utils` and a new file `verify.js` :
+
+```js
+const { run } = require("hardhat");
+
+const verify = async (contractAddress, args) => {
+    console.log("Verifying contract...");
+    try {
+        await run("verify:verify", {
+            address: contractAddress,
+            constructorArguments: args,
+        });
+    } catch (e) {
+        if (e.message.ToLowerCase().includes("already verified")) {
+            console.log("Already Verified!");
+        } else {
+            console.log(e);
+        }
+    }
+};
+
+module.exports = { verify };
+```
+
+Import it in the `01-deploy-raffle.js` :
+
+```js
+const { verify } = require("../utils/verify");
+```
+
+And call the function at the end of the script :
+
+```js
+if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+    log("Verifing...");
+    await verify(raffle.target, args);
+}
+```
+
+Add the `module.exports.tags` :
+
+```js
+module.exports.tags = ["all", "raffle"];
+```
+
+Finally, we can deploy our contracts !
+
+```bash
+yarn hardhat deploy
+```
+
+## Unit Tests
+
+Create the new folders and file `test/unit/Raffle.test.js` :
+
+```js
+
+```
+
+Vidéo : 15.49.12
