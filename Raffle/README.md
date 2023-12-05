@@ -344,4 +344,106 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
 ## Deploy
 
-Create a new folder `deploy`
+Create a new folder `deploy` and a new file `01-deploy-raffle.js` into :
+
+```js
+const { network } = require("hardhat");
+
+module.exports = async function ({ getNamedAccounts, deployments }) {
+    const { deploy, log } = deployments;
+    const { deployer } = await getNamedAccounts();
+
+    const raffle = await deploy("Raffle", {
+        from: deployer,
+        args: [],
+        log: true,
+        waitConfirmations: network.config.blockConfirmations || 1,
+    });
+};
+```
+
+Configure the `hardhat.config.js` :
+
+```js
+//require("@nomicfoundation/hardhat-toolbox");
+require("hardhat-deploy");
+require("hardhat-gas-reporter");
+require("solidity-coverage");
+require("@nomiclabs/hardhat-ethers");
+require("hardhat-contract-sizer");
+require("dotenv").config();
+
+const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+    defaultNetwork: "hardhat",
+    networks: {
+        hardhat: {
+            chainId: 31337,
+            blockConfirmations: 1,
+        },
+        sepolia: {
+            chainId: 11155111,
+            blockConfirmations: 6,
+            url: SEPOLIA_RPC_URL,
+            accounts: [PRIVATE_KEY],
+        },
+    },
+    solidity: "0.8.19",
+    namedAccounts: {
+        deployer: {
+            default: 0,
+        },
+        player: {
+            default: 1,
+        },
+    },
+};
+```
+
+We have the base. Now go add our arguments for the constructor. We use VRF and keepers so we have to use Mocks. Let's create our `helper-hardhat-config.js` :
+
+```js
+const networkConfig = {
+    11155111: {
+        name: "sepolia",
+        vrfCoordinatorV2: "0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625",
+    },
+};
+
+const developmentChains = ["hardhat", "localhost"];
+
+module.exports = {
+    networkConfig,
+    developmentChains,
+};
+```
+
+Create a deploy file for the mock : `00-deploy-mocks.js`
+
+```js
+const { developmentChains } = require("../helper-hardhat-config");
+
+module.exports = async function ({ getNamedAccounts, deployments }) {
+    const { deploy, log } = deployments;
+    const { deployer } = await getNamedAccounts();
+    const chainId = network.config.chainId;
+
+    if (developmentChains.includes(network.name)) {
+        log("Local network detected! Deploying mocks...");
+        // Deploy a mock vrfCoordinator...
+    }
+};
+```
+
+### Deploy mocks
+
+Create a new folder `contracts/test` and a new file called `VRFCoordinatorV2Mock.sol` and import the mock contract for VRFCoordinatorV2 :
+
+```js
+
+```
