@@ -642,10 +642,18 @@ yarn hardhat deploy
 
 ## Unit Tests
 
-Create the new folders and file `test/unit/Raffle.test.js` :
+Create the new folders and file `test/unit/Raffle.test.js`.
+Find the test file in the repo.
+
+For the working of the tests, we have add a timeout property in `hardhat.config.js` :
 
 ```js
-
+mocha: {
+    timeout: 50000, // 500 seconds max for running tests
+},
 ```
 
-Vidéo : 15.49.12
+## Staging Tests
+
+Create the new folder and file `test/staging/Raffle.staging.test.js`.
+Find the test file in the repo.
