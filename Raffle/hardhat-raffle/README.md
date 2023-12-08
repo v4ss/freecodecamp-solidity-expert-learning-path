@@ -602,7 +602,7 @@ const verify = async (contractAddress, args) => {
             constructorArguments: args,
         });
     } catch (e) {
-        if (e.message.ToLowerCase().includes("already verified")) {
+        if (e.message.toLowerCase().includes("already verified")) {
             console.log("Already Verified!");
         } else {
             console.log(e);
@@ -624,7 +624,7 @@ And call the function at the end of the script :
 ```js
 if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
     log("Verifing...");
-    await verify(raffle.target, args);
+    await verify(raffle.address, args);
 }
 ```
 
@@ -657,3 +657,23 @@ mocha: {
 
 Create the new folder and file `test/staging/Raffle.staging.test.js`.
 Find the test file in the repo.
+
+To run the test :
+
+1. Get our SubId
+    - Go to https://vrf.chain.link
+    - Create the subscription and fund with 2 LINK
+    - Get the SubId and add it in the `helper-hardhat-config.js`
+2. Deploy our contract using the SubId
+    - `yarn hardhat deploy --network sepolia`
+    - Get the address : "0x0e2E470155298683b2f777a899A48001A5DF4F83"
+3. Add it to the consumer.
+4. Create a new Keepers (Automation) subscription :
+    - Got to https://automation.chain.link
+    - Register a new upkeep
+    - Select the type : Custom Logic
+    - Add the upKeep address (contract address)
+5. Run the Staging test :
+    - `yarn hardhat test --network sepolia`
+
+Vidéo : 16.30.00

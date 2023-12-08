@@ -33,6 +33,11 @@ module.exports = {
         noColors: true,
         // coinmarketcap: COINMARKETCAP_API_KEY,
     },
+    etherscan: {
+        apiKey: {
+            sepolia: ETHERSCAN_API_KEY,
+        },
+    },
     solidity: "0.8.19",
     namedAccounts: {
         deployer: {
