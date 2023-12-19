@@ -458,3 +458,7 @@ export default function LotteryEntrance() {
     );
 }
 ```
+
+## Reading & Displaying Contract Data
+
+Vidéo : 17.58.04
