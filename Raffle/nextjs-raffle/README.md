@@ -461,4 +461,148 @@ export default function LotteryEntrance() {
 
 ## Reading & Displaying Contract Data
 
-Vidéo : 17.58.04
+Add two useState variables for number of players and recent winner :
+
+```js
+import { useWeb3Contract, useMoralis } from "react-moralis";
+import { abi, contractAddresses } from "../constants";
+import { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { useNotification } from "web3uikit";
+
+export default function LotteryEntrance() {
+    const { chainId: chainIdHex, isWeb3Enabled } = useMoralis(); // Return the Hex version of the chainId
+    const chainId = parseInt(chainIdHex); // Get the decimal chainId
+    const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null;
+    const [entranceFee, setEntranceFee] = useState("0");
+    const [numPlayers, setNumPlayer] = useState("0"); // Here
+    const [recentWinner, setRecentWinner] = useState("0");
+
+    const dispatch = useNotification();
+
+    const { runContractFunction: enterRaffle } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress,
+        functionName: "enterRaffle",
+        params: {},
+        msgValue: entranceFee,
+    });
+
+    const { runContractFunction: getEntranceFee } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress,
+        functionName: "getEntranceFee",
+        params: {},
+    });
+
+    const { runContractFunction: getNumberOfPlayers } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress,
+        functionName: "getNumberOfPlayers",
+        params: {},
+    });
+
+    const { runContractFunction: getRecentWinner } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress,
+        functionName: "getRecentWinner",
+        params: {},
+    });
+
+    async function updateUI() {
+        const entranceFeeFromCall = (await getEntranceFee()).toString();
+        const numPlayersFromCall = (await getNumberOfPlayers()).toString();
+        const recentWinnerFromCall = await getRecentWinner();
+        setEntranceFee(entranceFeeFromCall);
+        setNumPlayer(numPlayersFromCall);
+        setRecentWinner(recentWinnerFromCall);
+    }
+
+    useEffect(() => {
+        if (isWeb3Enabled) {
+            updateUI();
+        }
+    }, [isWeb3Enabled]);
+
+    const handleSuccess = async function (tx) {
+        await tx.wait(1);
+        handleNewNotification(tx);
+        updateUI(); // Here
+    };
+
+    const handleNewNotification = function () {
+        dispatch({
+            type: "info",
+            message: "Transaction Complete!",
+            title: "Transaction Notification",
+            position: "topR",
+            // icon: "bell",
+        });
+    };
+
+    return (
+        <div>
+            Hi from lottery entrance!
+            {raffleAddress ? (
+                <div>
+                    <button
+                        onClick={async function () {
+                            await enterRaffle({
+                                onSuccess: handleSuccess,
+                            });
+                        }}
+                    >
+                        Enter Raffle
+                    </button>
+                    Entrance Fee : {ethers.utils.formatEther(entranceFee)} ETH <br />
+                    Number of players : {numPlayers} {/* Here */}
+                    <br />
+                    Recent Winner : {recentWinner}
+                </div>
+            ) : (
+                <div>No Raffle Address Detected</div>
+            )}
+        </div>
+    );
+}
+```
+
+## Tailwind CSS
+
+Install Tailwind in the project :
+
+```bash
+yarn add --dev tailwindcss postcss autoprefixer
+```
+
+Init tailwind :
+
+```bash
+yarn tailwindcss init -p
+```
+
+You have now two new files : `tailwind.config.js` and `postcss.config.js`. In `tailwind.config.js`, paste this :
+
+```js
+module.exports = {
+    content: [".pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+    theme: {
+        extend: {},
+    },
+    plugins: [],
+};
+```
+
+Then go to `styles/globals.css` and paste this :
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+Install the `PostCSS Language Support` and `Tailwind CSS IntelliSense` extensions in VSCode.
+
+## Introducing to Hosting your site
+
+Vidéo : 18.12.51
