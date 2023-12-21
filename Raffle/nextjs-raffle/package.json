@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines" : { 
+    "node" : ">=18.17.0" 
+  },
   "dependencies": {
     "moralis": "^2.23.2",
     "moralis-v1": "^1.13.0",

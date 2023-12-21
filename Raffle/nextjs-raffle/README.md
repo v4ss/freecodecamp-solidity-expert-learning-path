@@ -631,3 +631,7 @@ Go to https://www.fleek.co
 -   Sign up with Github
 -   "Add new site"
 -   Continuous deployment --> Connect with Github
+-   Select the repo with the next app
+-   Select IPFS, the framework we use (nextJS here)
+-   Add the build command : `yarn install && yarn build`
+-   Deploy the site
