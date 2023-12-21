@@ -605,4 +605,29 @@ Install the `PostCSS Language Support` and `Tailwind CSS IntelliSense` extension
 
 ## Introducing to Hosting your site
 
-Vidéo : 18.12.51
+### Hosting with IPFS
+
+First install, IPFS Desktop on their website : https://github.com/ipfs/ipfs-desktop/releases
+
+In `next.config.js` add `output: "export",`. Like this :
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    reactStrictMode: true,
+    output: "export",
+};
+
+module.exports = nextConfig;
+```
+
+Then, run `yarn build`.
+Now you have an `out/` folder and this is this folder we import in IPFS Files. Set the pin to Local Node, copy the CID and in a Browser go to `ipfs://YOUR_CID`
+
+#### IPFS Using Fleek
+
+Go to https://www.fleek.co
+
+-   Sign up with Github
+-   "Add new site"
+-   Continuous deployment --> Connect with Github
